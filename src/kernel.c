@@ -8,11 +8,18 @@
 
 void process(char *array)
 {
+	int k = 0;
 	while (1){
 		for (int i = 0; i < 5; i++){
 			uart_send(array[i]);
 			delay(100000);
 		}
+		k++;
+		if(array[0] == '0' && k == 300)
+			exit_process();
+		if(array[0] == 'a' && k == 300)
+			exit_process();
+
 	}
 }
 
@@ -46,8 +53,6 @@ void kernel_main(void)
 		printf("error while starting process 2");
 		return;
 	}
-
-
 
 	while (1){
 		schedule();

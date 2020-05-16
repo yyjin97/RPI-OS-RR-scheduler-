@@ -34,6 +34,27 @@ static inline int rt_se_prio(struct sched_rt_entity *rt_se)
     return rt_task_of(rt_se)->priority;
 }
 
+static inline void inc_rt_tasks(struct sched_rt_entity *rt_se, struct rt_rq *rt_rq)
+{
+    int prio = rt_se_prio(rt_se);
+
+    if(!rt_prio(prio))
+        return;
+
+    rt_rq->rt_nr_running += 1;
+}
+
+static inline void dec_rt_tasks(struct sched_rt_entity *rt_se, struct rt_rq *rt_rq)
+{
+    if(!rt_prio(rt_se_prio(rt_se)))
+        return;
+
+    if(!rt_rq->rt_nr_running)
+        return;
+
+    rt_rq->rt_nr_running -= 1;
+}
+
 void update_curr_rt(struct rq *rq) 
 {
     struct task_struct *curr = rq->curr;
@@ -60,8 +81,8 @@ void enqueue_rt_entity(struct sched_rt_entity *rt_se, int head)
     struct rt_prio_array *array = &rt_rq->active;
     struct list_head *queue = array->queue + rt_se_prio(rt_se);
 
-    if(!test_bit(rt_se_prio(rt_se), array->bitmap))
-        INIT_LIST_HEAD(queue);
+    if(rt_se->on_list)
+        return;
 
     if(head)    
         list_add(&rt_se->run_list, queue);
@@ -69,7 +90,35 @@ void enqueue_rt_entity(struct sched_rt_entity *rt_se, int head)
         list_add_tail(&rt_se->run_list, queue);
 
     __set_bit(rt_se_prio(rt_se), array->bitmap);    //priority의 bit를 1로 set
+    
+    rt_se->on_list = 1;
     rt_se->on_rq = 1;
+
+    inc_rt_tasks(rt_se, rt_rq);
+}
+
+void __delist_rt_entity(struct sched_rt_entity *rt_se, struct rt_prio_array *array)
+{
+    list_del_init(&rt_se->run_list);
+
+    if(list_empty(array->queue + rt_se_prio(rt_se)))
+        __clear_bit(rt_se_prio(rt_se), array->bitmap);
+
+    rt_se->on_list = 0;
+}
+
+void dequeue_rt_entity(struct sched_rt_entity *rt_se)
+{
+    struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
+    struct rt_prio_array *array = &rt_rq->active;
+
+    if(!rt_se->on_list) 
+        return;
+
+    __delist_rt_entity(rt_se, array);
+    rt_se->on_rq = 0;
+
+    dec_rt_tasks(rt_se, rt_rq);
 }
 
 struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq) 
@@ -83,7 +132,7 @@ struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
     if(idx >= MAX_RT_RPIO) 
         return NULL;
 
-    queue = array->queue + idx; //////////////
+    queue = array->queue + idx;
     next = list_entry(queue->next, struct sched_rt_entity, run_list);
 
     return next;
@@ -112,8 +161,6 @@ struct task_struct *pick_next_task_rt(struct rq *rq, struct task_struct *prev)
 
     update_rq_clock(rq);
     update_curr_rt(rq);
-
-    //put_prev_task!!!!!!!!
 
     p = _pick_next_task_rt(rq);
 

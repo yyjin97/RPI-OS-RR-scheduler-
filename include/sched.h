@@ -14,7 +14,8 @@
 #define FIRST_TASK task[0]
 #define LAST_TASK task[NR_TASKS-1]
 
-#define TASK_RUNNING				0
+#define TASK_RUNNING			0X00
+#define TASK_DEAD 				0X08
 
 #define MAX_RT_RPIO     		100
 
@@ -67,6 +68,7 @@ struct sched_rt_entity {
     struct list_head        run_list;
 	unsigned int 			time_slice;
 	unsigned short 			on_rq;
+	unsigned short 			on_list;
 
 	struct rt_rq 			*rt_rq;
 };
@@ -92,7 +94,6 @@ struct task_struct {
 	unsigned int policy;
 	unsigned int pid;
 
-	//const struct sched_class 	*sched_class;
 	struct sched_entity 		se;
 	struct sched_rt_entity 		rt;
 	struct sched_dl_entity 		dl;
@@ -124,9 +125,6 @@ struct dl_rq {
 };
 
 struct rq {
-
-	unsigned int nr_running;
-
 	struct cfs_rq cfs;
 	struct rt_rq rt;
 	struct dl_rq dl;
@@ -146,6 +144,7 @@ extern void switch_to(struct task_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 extern void resched_curr(struct rq *rq);
 extern void update_rq_clock(struct rq *rq);
+extern void exit_process();
 
 /* thread_info */
 static inline void set_ti_thread_flag(struct thread_info *ti, int flag)

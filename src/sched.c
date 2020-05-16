@@ -8,7 +8,7 @@ struct task_struct *current = &(init_task);
 struct task_struct * task[NR_TASKS] = {&(init_task), };
 static struct rq rq;
 int nr_tasks = 1;
- 
+
 bool need_resched(void) 
 {
 	return test_ti_thread_flag(current_thread_info(), TIF_NEED_RESCHED);
@@ -38,18 +38,22 @@ void resched_curr(struct rq *rq)
 
 void sched_init(void)
 {
+	struct rt_prio_array *array;
+
 	current->rt.rt_rq = &rq.rt;
 	current->rt.time_slice = RR_TIMESLICE;
 
-	INIT_LIST_HEAD(&current->rt.run_list);
+	array = &rq.rt.active;
+	for(int i = 0; i < MAX_RT_RPIO; i++) {
+		INIT_LIST_HEAD(array->queue + i);
+		__clear_bit(i, array->bitmap);
+	}
 	
-	rq.nr_running = 0;
 	rq.clock_task = timer_clock();
 
 	rq.curr = current;
 	rq.rt.rt_nr_running = 0;
 	rq.rt.rt_time = 0;
-
 
 	enqueue_rt_entity(&current->rt, 1);
 }
@@ -113,4 +117,18 @@ void timer_tick()
 		_schedule();
 	}
 	disable_irq();
+}
+
+void exit_process(){				
+	preempt_disable();
+	struct task_struct *tsk = current;
+	unsigned int pid = current->pid;
+
+	dequeue_rt_entity(&current->rt);
+
+	tsk->state = TASK_DEAD;
+	printf("\r\nexit process : %d\n\r", pid);
+
+	preempt_enable();
+	schedule();
 }

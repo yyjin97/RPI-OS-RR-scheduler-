@@ -51,6 +51,12 @@ static inline void __list_del_entry(struct list_head *entry)
     __list_del(entry->prev, entry->next);
 }
 
+static inline void list_del_init(struct list_head *entry)
+{
+	__list_del_entry(entry);
+	INIT_LIST_HEAD(entry);
+}
+
 /* list를 delete하고 head의 가장 앞에 insert */
 static inline void list_move(struct list_head *list, struct list_head *head)
 {
@@ -63,6 +69,11 @@ static inline void list_move_tail(struct list_head *list, struct list_head *head
 {
     __list_del_entry(list);
     list_add_tail(list, head);
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+	return (head->next) == head;
 }
 
 #endif

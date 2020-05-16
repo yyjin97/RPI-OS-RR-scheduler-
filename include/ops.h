@@ -54,6 +54,15 @@ static inline void __set_bit(int nr, volatile unsigned long *addr)
         *p  |= mask;
 }
 
+/* addr의 nr번째 bit를 0으로 clear */
+static inline void __clear_bit(int nr, volatile unsigned long *addr)
+{
+	unsigned long mask = BIT_MASK_LONG(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD_LONG(nr);
+
+	*p &= ~mask;
+}
+
 /* addr의 nr번째 bit를 return */
 static inline int test_bit(int nr, const volatile unsigned long *addr)
 {

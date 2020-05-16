@@ -12,7 +12,12 @@ int copy_process(unsigned long fn, unsigned long arg, long weight)
 	p = (struct task_struct *) get_free_page();
 	if (!p)
 		return 1;
-	p->priority = 20;
+
+	if(weight < 3)
+		p->priority = 20;
+	else 
+		p->priority = 30;
+
 	p->weight = weight;
 	p->pid = nr_tasks++;
 	p->state = TASK_RUNNING;
@@ -27,6 +32,7 @@ int copy_process(unsigned long fn, unsigned long arg, long weight)
 	p->rt.rt_rq = rt_rq_of_se(&current->rt);
 	p->rt.time_slice = RR_TIMESLICE * p->weight;
 	p->rt.on_rq = 0;
+	p->rt.on_list = 0;
 
 	p->se.exec_start = 0;
 	p->se.sum_exec_runtime = 0;
