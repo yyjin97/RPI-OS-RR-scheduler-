@@ -5,6 +5,7 @@
 
 #define RR_TIMESLICE        1
 
+/* task의 priority가 valid 한지 확인*/
 static inline int rt_prio(int prio)
 {
 	if (prio < MAX_RT_RPIO)

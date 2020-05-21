@@ -1,3 +1,7 @@
+/***********************************************************
+ * rt.c 파일의 함수들은 linux kernel의 kernel/sched/rt.c 파일의 함수들을 이용 
+ * **********************************************************/
+
 #include "ops.h"
 #include "rt.h"
 #include "list.h"
@@ -44,6 +48,7 @@ static inline void inc_rt_tasks(struct sched_rt_entity *rt_se, struct rt_rq *rt_
     rt_rq->rt_nr_running += 1;
 }
 
+/* 실행중인 task 수를 감소 */
 static inline void dec_rt_tasks(struct sched_rt_entity *rt_se, struct rt_rq *rt_rq)
 {
     if(!rt_prio(rt_se_prio(rt_se)))
@@ -55,6 +60,7 @@ static inline void dec_rt_tasks(struct sched_rt_entity *rt_se, struct rt_rq *rt_
     rt_rq->rt_nr_running -= 1;
 }
 
+/* 현재 실행 중인 task의 실행시간을 update */
 void update_curr_rt(struct rq *rq) 
 {
     struct task_struct *curr = rq->curr;
@@ -75,6 +81,7 @@ void update_curr_rt(struct rq *rq)
     return;
 }
 
+/* sched_rt_entity를 해당 priority의 queue에 enqueue함 */
 void enqueue_rt_entity(struct sched_rt_entity *rt_se, int head) 
 {
     struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
@@ -107,6 +114,7 @@ void __delist_rt_entity(struct sched_rt_entity *rt_se, struct rt_prio_array *arr
     rt_se->on_list = 0;
 }
 
+/* sched_rt_entity를 해당 priority의 queue에서 dequeue함 */
 void dequeue_rt_entity(struct sched_rt_entity *rt_se)
 {
     struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
@@ -121,6 +129,7 @@ void dequeue_rt_entity(struct sched_rt_entity *rt_se)
     dec_rt_tasks(rt_se, rt_rq);
 }
 
+/* 다음으로 수행할 rt_entity를 pick */
 struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq) 
 {
     struct rt_prio_array *array = &rt_rq->active;
@@ -138,6 +147,7 @@ struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
     return next;
 }
 
+/* 다음으로 수행할 task를 pick */
 struct task_struct *_pick_next_task_rt(struct rq *rq) 
 {
     struct sched_rt_entity *rt_se;
@@ -167,6 +177,7 @@ struct task_struct *pick_next_task_rt(struct rq *rq, struct task_struct *prev)
     return p;
 }
 
+/* p에 해당하는 task를 list의 head or tail로 옮김 */
 void requeue_task_rt(struct rq *rq, struct task_struct *p, int head)
 {
     struct sched_rt_entity *rt_se = &p->rt;
@@ -185,6 +196,7 @@ void requeue_task_rt(struct rq *rq, struct task_struct *p, int head)
     }
 }
 
+/* timer_tick 발생시마다 수행하는 함수 */
 void task_tick_rt(struct rq *rq, struct task_struct *p)
 {
     struct sched_rt_entity *rt_se = &p->rt;

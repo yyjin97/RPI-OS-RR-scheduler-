@@ -12,12 +12,8 @@ int copy_process(unsigned long fn, unsigned long arg, long weight)
 	p = (struct task_struct *) get_free_page();
 	if (!p)
 		return 1;
-
-	if(weight < 3)
-		p->priority = 20;
-	else 
-		p->priority = 30;
-
+		
+	p->priority = 20;
 	p->weight = weight;
 	p->pid = nr_tasks++;
 	p->state = TASK_RUNNING;

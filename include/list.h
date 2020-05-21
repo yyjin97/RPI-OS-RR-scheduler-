@@ -1,3 +1,7 @@
+/************************************************************
+ * list.h 파일의 함수들을 linux kernel의 include/linux/list.h 파일의 함수들을 이용 
+ * *********************************************************/
+
 #ifndef _LIST_H
 #define _LIST_H
 
@@ -10,7 +14,7 @@ struct list_head {
     struct list_head *prev, *next;
 };
 
-
+/* list_head를 초기화 */
 static inline void INIT_LIST_HEAD(struct list_head *list)
 {
     list->next = list;
@@ -71,6 +75,7 @@ static inline void list_move_tail(struct list_head *list, struct list_head *head
     list_add_tail(list, head);
 }
 
+/* list가 비어있으면 true를 리턴 */
 static inline int list_empty(const struct list_head *head)
 {
 	return (head->next) == head;
