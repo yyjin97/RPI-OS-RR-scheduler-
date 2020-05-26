@@ -12,12 +12,17 @@ int copy_process(unsigned long fn, unsigned long arg, long weight)
 	p = (struct task_struct *) get_free_page();
 	if (!p)
 		return 1;
-		
-	p->priority = 20;
+
 	p->weight = weight;
 	p->pid = nr_tasks++;
 	p->state = TASK_RUNNING;
 	p->thread_info.preempt_count = 1; //disable preemtion until schedule_tail
+
+	if(p->pid == 1 || p->pid == 4) {
+		p->priority = 20;
+	} else {
+		p->priority = 30;
+	}
 
 	p->thread_info.cpu_context.x19 = fn;
 	p->thread_info.cpu_context.x20 = arg;

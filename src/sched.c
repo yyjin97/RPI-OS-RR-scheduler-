@@ -88,6 +88,7 @@ void _schedule(void)
 
 void schedule(void)
 {
+	requeue_task_rt(&rq, current, 0); 
 	_schedule();
 }
 

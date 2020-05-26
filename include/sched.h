@@ -185,7 +185,7 @@ static inline void clear_tsk_need_resched(struct task_struct *tsk)
 
 #define INIT_TASK \
 /*cpu_context*/	{{ {0,0,0,0,0,0,0,0,0,0,0,0,0},0,0}, \
-/* state etc */	0,80,1,SCHED_RR,0, {0,0,0,0},{{0,0},0,0,0},{0} \
+/* state etc */	0,20,0,SCHED_RR,0, {0,0,0,0},{{0,0},0,0,0},{0} \
 }
 
 
