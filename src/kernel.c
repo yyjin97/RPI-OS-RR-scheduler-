@@ -51,7 +51,7 @@ void kernel_main(void)
 
 	while (1){
 		schedule();
-		if(timer_clock() > 24) {
+		if(timer_clock() > 5) {
 			res = copy_process((unsigned long)&process, (unsigned long)"44444", (long)2);
 			if (res != 0) {
 				printf("error while starting process 2");

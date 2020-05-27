@@ -2,7 +2,7 @@
 #include "sched.h"
 #include "peripherals/timer.h"
 
-const unsigned int interval = 800000;
+const unsigned int interval = 600000;
 unsigned int curVal = 0;
 unsigned int clock = 0;
 
@@ -18,7 +18,7 @@ void handle_timer_irq( void )
 	curVal += interval;
 	put32(TIMER_C1, curVal);
 	put32(TIMER_CS, TIMER_CS_M1);
-	clock += 4;
+	clock += 1;
 	timer_tick();
 }
 
