@@ -3,6 +3,8 @@
 
 Raspberry pi os with RR( _Round Robin_ ), the RealTime Linux scheduler.
 
+This is an analysis of the actual Linux source code and applied to the Raspberry Pi OS.
+
 ## Getting started
 
 
